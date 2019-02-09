@@ -3,7 +3,7 @@ import pygame as G, random, enum, os, time, collections
 os.environ['SDL_VIDEO_WINDOW_POS'] = '200,35'
 
 širina, visina = 10, 15
-q = 40
+q = 20
 cheat_code_activated = False
 
 class Oblik(enum.Enum):
