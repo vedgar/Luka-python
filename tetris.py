@@ -5,6 +5,7 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = '200,35'
 širina, visina = 10, 15
 q = 30
 cheat_code_activated = False
+bodovi = 0
 
 class Oblik(enum.Enum):
     S = [' ##',
@@ -59,6 +60,9 @@ class Boja:
 ekran = G.display.set_mode([10 + (širina+2)*q + 200, 10 + (visina+1)*q + 10])
 playground = G.Rect(10, 10, (širina+2)*q, (visina+1)*q)
 G.key.set_repeat(1, 100)
+G.mixer.init()
+G.mixer.music.load('tetrisb.mid')
+G.mixer.music.play(-1)
 # G.font.init()
 # font = G.font.SysFont('Arial', 24, bold=True)
 polje = {Blok(i, 0, Boja.siva) for i in range(16)}
@@ -67,7 +71,10 @@ polje |= {Blok(i, 11, Boja.siva) for i in range(16)}
 
 def kraj():
     G.key.set_repeat()
+    G.mixer.music.stop()
     G.quit()
+    print('This is the end, my friend...')
+    print('Bodovi:', bodovi)
     raise SystemExit
 
 def novi_oblik():
@@ -124,6 +131,7 @@ with contextlib.suppress(Kraj):
                     if opolje.isdisjoint(polje): o.i += 1
                 elif događaj.key == G.K_SPACE:
                     while ...:
+                        bodovi += 5
                         opolje = o.popuni(o.i+1, o.j)
                         if opolje.isdisjoint(polje): o.i += 1
                         else:
