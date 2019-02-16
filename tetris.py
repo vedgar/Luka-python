@@ -1,4 +1,4 @@
-import pygame as G, random, enum, os, time, collections
+import pygame as G, random, enum, os, time, collections, contextlib
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = '200,35'
 
@@ -58,6 +58,7 @@ class Boja:
 
 ekran = G.display.set_mode([10 + (širina+2)*q + 200, 10 + (visina+1)*q + 10])
 playground = G.Rect(10, 10, (širina+2)*q, (visina+1)*q)
+G.key.set_repeat(1, 100)
 # G.font.init()
 # font = G.font.SysFont('Arial', 24, bold=True)
 polje = {Blok(i, 0, Boja.siva) for i in range(16)}
@@ -65,47 +66,70 @@ polje |= {Blok(15, i, Boja.siva) for i in range(1, 11)}
 polje |= {Blok(i, 11, Boja.siva) for i in range(16)}
 
 def kraj():
+    G.key.set_repeat()
     G.quit()
-    raise SystemExit    
+    raise SystemExit
+
+def novi_oblik():
+    o = random.choice(oblici)
+    o.i, o.j = 0, 3
+    print(*o.value, sep='\n')
+    print()
+    o.boja = Boja.slučajna()
+    opolje = o.popuni(o.i, o.j)
+    if opolje.isdisjoint(polje):
+        return o
+    raise Kraj
+    
+class Kraj(Exception):
+    pass
 
 o = None
 score = 0
 G.time.set_timer(G.USEREVENT, 500)
 
-while ...:
-    if o is None:
-        o = random.choice(oblici)
-        o.i, o.j = 0, 3
-        print(*o.value, sep='\n')
-        print()
-        o.boja = Boja.slučajna()
-        o.popuni(o.i, o.j)
-    ekran.fill(Boja.crna)
-    for blok in polje: blok.nacrtaj()
-    for blok in o.popuni(o.i, o.j): blok.nacrtaj()
-    if score > 10_000 and not cheat_code_activated:
-        print('Cheat code activated!')
-        print('Press CAPS LOCK...')
-        cheat_code_activated = True
-    ...  # crtanje
-    G.display.flip()
-    for događaj in G.event.get():
-        if događaj.type == G.QUIT:
-            kraj()
-        elif događaj.type == G.USEREVENT:
-            opolje = o.popuni(o.i+1, o.j)
-            if opolje & polje:
-                polje |= o.popuni(o.i, o.j)
-                o = None
-            else: o.i += 1
-        elif događaj.type == G.KEYDOWN:
-            if događaj.key == G.K_ESCAPE:
+with contextlib.suppress(Kraj):
+    while ...:
+        if o is None:
+            o = novi_oblik()
+        ekran.fill(Boja.crna)
+        for blok in polje: blok.nacrtaj()
+        for blok in o.popuni(o.i, o.j): blok.nacrtaj()
+        if score > 10_000 and not cheat_code_activated:
+            print('Cheat code activated!')
+            print('Press CAPS LOCK...')
+            cheat_code_activated = True
+        ...  # crtanje
+        G.display.flip()
+        for događaj in G.event.get():
+            if događaj.type == G.QUIT:
                 kraj()
-            elif događaj.key == G.K_LEFT:
-                opolje = o.popuni(o.i, o.j-1)
-                if opolje.isdisjoint(polje): o.j -= 1
-            elif događaj.key == G.K_RIGHT:
-                opolje = o.popuni(o.i, o.j+1)
-                if opolje.isdisjoint(polje): o.j += 1
-            elif događaj.key == G.K_CAPSLOCK and cheat_code_activated:
-                o.i = 0
+            elif događaj.type == G.USEREVENT:
+                opolje = o.popuni(o.i+1, o.j)
+                if opolje & polje:
+                    polje |= o.popuni(o.i, o.j)
+                    o = novi_oblik()
+                else: o.i += 1
+            elif događaj.type == G.KEYDOWN:
+                if događaj.key == G.K_ESCAPE:
+                    kraj()
+                elif događaj.key == G.K_LEFT:
+                    opolje = o.popuni(o.i, o.j-1)
+                    if opolje.isdisjoint(polje): o.j -= 1
+                elif događaj.key == G.K_RIGHT:
+                    opolje = o.popuni(o.i, o.j+1)
+                    if opolje.isdisjoint(polje): o.j += 1
+                elif događaj.key == G.K_DOWN:
+                    opolje = o.popuni(o.i+1, o.j)
+                    if opolje.isdisjoint(polje): o.i += 1
+                elif događaj.key == G.K_SPACE:
+                    while ...:
+                        opolje = o.popuni(o.i+1, o.j)
+                        if opolje.isdisjoint(polje): o.i += 1
+                        else:
+                            polje |= o.popuni(o.i, o.j)
+                            o = novi_oblik()
+                            break
+                elif događaj.key == G.K_CAPSLOCK and cheat_code_activated:
+                    o.i = 0
+kraj()
