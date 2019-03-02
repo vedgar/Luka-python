@@ -22,15 +22,13 @@ class Oblik(enum.Enum):
                  '###']
     I = ['####']
 
-##    Ivan = ['  #  ',
-##            ' ### ',
-##            '#####',
-##            ' ### ',
-##            '  #  ']
+
+    def rotiraj(self):
+        self.smjer = list(map(''.join, zip(*reversed(self.smjer))))
 
     def popuni(self, di=0, dj=0):
         opolje = set()
-        for i, linija in enumerate(self.value, start=self.i+di):
+        for i, linija in enumerate(self.smjer, start=self.i+di):
             for j, znak in enumerate(linija, start=self.j+dj):
                 if znak == '#': opolje.add(Blok(i, j, self.boja))
         return opolje
@@ -48,6 +46,7 @@ class Oblik(enum.Enum):
 
 def novi_oblik(oblici = list(Oblik)):
     o = random.choice(oblici)
+    o.smjer = o.value
     o.i, o.j = 0, širina // 2 - 1
     print(*o.value, sep='\n')
     print('-' * 10)
@@ -136,6 +135,7 @@ with contextlib.suppress(Kraj):
                 elif događaj.key == G.K_LEFT: o.kolizija(0, -1)
                 elif događaj.key == G.K_RIGHT: o.kolizija(0, 1)
                 elif događaj.key == G.K_DOWN: o.kolizija(1)
+                elif događaj.key == G.K_UP: o.rotiraj()
                 elif događaj.key == G.K_SPACE:
                     while not o.kolizija(1): dodaj_bodove(5)
                     konsolidiraj()
