@@ -105,3 +105,7 @@ venv.bak/
 
 # Mac
 .DS_Store
+
+# Not our files
+tetrisb.mid
+tetrisc.mid
