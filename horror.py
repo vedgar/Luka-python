@@ -1,7 +1,7 @@
 import pygame as G, dataclasses, random, pathlib
 
-staza = 'test'
-labirint = pathlib.Path(staza + '.horror').read_text().splitlines()
+staza = 'labirint'
+labirint = pathlib.Path(staza + '.horor').read_text().splitlines()
 header = len(labirint[0]) * '#'
 labirint = [header] + labirint + [header]
 labirint = ['#' + linija + '#' for linija in labirint]
@@ -29,7 +29,11 @@ class Igrač:
         if (i, j) not in zidovi:
             self.pos = i, j
 
+    def pomakni_slučajno(self):
+        self.pomakni(*random.choice([(-1, 0), (1, 0), (0, -1), (0, 1)]))
+
 Luka = Igrač()
+Džordž = Igrač()
 q = 50
 status = G.Surface([650, q * 3])
 ekran = G.display.set_mode([q * 3 + status.get_width(), status.get_height()])
@@ -48,14 +52,19 @@ class Boja:
     bijela = G.Color('white')
     crna = G.Color('black')
     plava = G.Color('blue')
+    crvena = G.Color('red')
 
 while ...:
     ekran.fill(Boja.bijela)
     i, j = Luka.pos
     for di in range(3):
         for dj in range(3):
-            if (i + di - 1, j + dj - 1) in zidovi:
-                ekran.fill(Boja.crna, G.Rect(q * dj, q * di, q, q))
+            vidi = i + di - 1, j + dj - 1
+            prav = G.Rect(q * dj, q * di, q, q)
+            if vidi in zidovi:
+                ekran.fill(Boja.crna, prav)
+            elif vidi == Džordž.pos:
+                ekran.fill(Boja.crvena, prav)
     status.fill(Boja.plava)
     tekst = font.render(poruka, True, Boja.crna, Boja.plava)
     status.blit(tekst, (10, 50))
@@ -69,5 +78,8 @@ while ...:
             elif događaj.key == G.K_RIGHT: Luka.pomakni(0, 1)
             elif događaj.key == G.K_UP: Luka.pomakni(-1, 0)
             elif događaj.key == G.K_DOWN: Luka.pomakni(1, 0)
-            poruka = ''
+            Džordž.pomakni_slučajno()
+            (i1, j1), (i2, j2) = Luka.pos, Džordž.pos
+            udaljenost = abs(i1 - i2) + abs(j1 - j2)
+            poruka = str(udaljenost)
         
