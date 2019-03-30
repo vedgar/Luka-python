@@ -1,4 +1,4 @@
-import pygame as G, dataclasses, random, pathlib
+import pygame as G, dataclasses, random, pathlib, contextlib
 
 staza = 'labirint'
 labirint = pathlib.Path(staza + '.horor').read_text().splitlines()
@@ -14,6 +14,7 @@ visina, širina = i, j
 q = 50
 s = 5
 
+class Opet(Exception): pass
 
 @dataclasses.dataclass
 class Igrač:
@@ -78,26 +79,16 @@ class Igrač:
 
 status = G.Surface([650, q * s])
 ekran = G.display.set_mode([q * s + status.get_width(), status.get_height()])
-moj_događaj = ubrzanje = G.USEREVENT
-
-Luka = Igrač()
-scary = [
-    Igrač(ime='George', slika='George', svakih=400),
-    Igrač(ime='Ghostface', slika='Ghostface', svakih=500)
-]
-
 sat = G.time.Clock()
 statusprav = G.Rect(q * s, 0, status.get_width(), status.get_height())
 G.font.init()
 font = G.font.Font(None, 50)
-
 poruka = 'Welcome to the horrible game'
 
 def kraj(npc=None):
     if npc is None: print('You gave up')
     else: print("You got F'ed by", npc.ime)
-    G.quit()
-    raise SystemExit
+    raise Opet(npc.ime)
 
 class Boja:
     bijela = G.Color('white')
@@ -106,39 +97,62 @@ class Boja:
     crvena = G.Color('red')
     svijetlosiva = G.Color('#dddddd')
 
-while ...:
-    ekran.fill(Boja.bijela)
-    i, j = Luka.pos
-    for di in range(s):
-        for dj in range(s):
-            vidi = i + di - s//2, j + dj - s//2
-            prav = G.Rect(q * dj, q * di, q, q)
-            if vidi in zidovi:
-                ekran.fill(Boja.crna, prav)
-            else:
-                for npc in scary:
-                    if vidi == npc.pos:
-                        ekran.blit(npc.slika, prav)
-                        if vidi == Luka.pos:
-                            kraj(npc)
-                        break
-            if vidi == Luka.pos:
-                ekran.fill(Boja.svijetlosiva, prav)
-                    
-    status.fill(Boja.plava)
-    tekst = font.render(poruka, True, Boja.crna, Boja.plava)
-    status.blit(tekst, (10, 50))
-    ekran.blit(status, statusprav)
+def splash(poruka):
+    ekran.fill(Boja.crvena)
+    tekst = font.render(poruka, True, Boja.plava, Boja.crvena)
+    ekran.blit(tekst, (10, 50))
+    tekst = font.render('Press SPACE', True, Boja.crna, Boja.crvena)
+    ekran.blit(tekst, (10, 90))
     G.display.flip()
-    poruka = str({npc.ime: npc.udaljenost() for npc in scary})
-    for događaj in G.event.get():
-        if događaj.type == G.QUIT: kraj()
-        elif događaj.type == G.KEYUP:
-            if događaj.key == G.K_ESCAPE: kraj()
-            elif događaj.key == G.K_LEFT: Luka.pomakni(0, -1)
-            elif događaj.key == G.K_RIGHT: Luka.pomakni(0, 1)
-            elif događaj.key == G.K_UP: Luka.pomakni(-1, 0)
-            elif događaj.key == G.K_DOWN: Luka.pomakni(1, 0)
-        else:
-            for npc in scary:
-                if događaj.type == npc.događaj: npc.pomakni_pametno()
+    while ...:
+        for događaj in G.event.get():
+            if događaj.type == G.KEYDOWN and događaj.key == G.K_SPACE: return
+
+poruka = ''
+while ...:
+    try:
+        moj_događaj = ubrzanje = G.USEREVENT
+        splash(poruka)
+        Luka = Igrač()
+        scary = [
+            Igrač(ime='George', slika='George', svakih=400),
+            Igrač(ime='Ghostface', slika='Ghostface', svakih=500)
+        ]
+        while ...:
+            ekran.fill(Boja.bijela)
+            i, j = Luka.pos
+            for di in range(s):
+                for dj in range(s):
+                    vidi = i + di - s//2, j + dj - s//2
+                    prav = G.Rect(q * dj, q * di, q, q)
+                    if vidi in zidovi:
+                        ekran.fill(Boja.crna, prav)
+                    else:
+                        for npc in scary:
+                            if vidi == npc.pos:
+                                ekran.blit(npc.slika, prav)
+                                if vidi == Luka.pos:
+                                    kraj(npc)
+                                break
+                    if vidi == Luka.pos:
+                        ekran.fill(Boja.svijetlosiva, prav)
+                            
+            status.fill(Boja.plava)
+            tekst = font.render(poruka, True, Boja.crna, Boja.plava)
+            status.blit(tekst, (10, 50))
+            ekran.blit(status, statusprav)
+            G.display.flip()
+            poruka = str({npc.ime: npc.udaljenost() for npc in scary})
+            for događaj in G.event.get():
+                if događaj.type == G.QUIT: kraj()
+                elif događaj.type == G.KEYUP:
+                    if događaj.key == G.K_ESCAPE: kraj()
+                    elif događaj.key == G.K_LEFT: Luka.pomakni(0, -1)
+                    elif događaj.key == G.K_RIGHT: Luka.pomakni(0, 1)
+                    elif događaj.key == G.K_UP: Luka.pomakni(-1, 0)
+                    elif događaj.key == G.K_DOWN: Luka.pomakni(1, 0)
+                else:
+                    for npc in scary:
+                        if događaj.type == npc.događaj: npc.pomakni_pametno()
+    except Opet as ex:
+        poruka = "You got F'ed by " + ex.args[0]
