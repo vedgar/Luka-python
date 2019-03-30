@@ -104,6 +104,7 @@ class Boja:
     crna = G.Color('black')
     plava = G.Color('blue')
     crvena = G.Color('red')
+    svijetlosiva = G.Color('#dddddd')
 
 while ...:
     ekran.fill(Boja.bijela)
@@ -121,6 +122,8 @@ while ...:
                         if vidi == Luka.pos:
                             kraj(npc)
                         break
+            if vidi == Luka.pos:
+                ekran.fill(Boja.svijetlosiva, prav)
                     
     status.fill(Boja.plava)
     tekst = font.render(poruka, True, Boja.crna, Boja.plava)
