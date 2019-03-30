@@ -12,6 +12,7 @@ for i, linija in enumerate(labirint):
         if ćelija == '#': zidovi.add((i, j))
 visina, širina = i, j
 q = 50
+s = 5
 
 
 @dataclasses.dataclass
@@ -75,18 +76,18 @@ class Igrač:
         else: self.pomakni_slučajno()
 
 
-status = G.Surface([650, q * 3])
-ekran = G.display.set_mode([q * 3 + status.get_width(), status.get_height()])
+status = G.Surface([650, q * s])
+ekran = G.display.set_mode([q * s + status.get_width(), status.get_height()])
 moj_događaj = ubrzanje = G.USEREVENT
 
 Luka = Igrač()
 scary = [
-    Igrač(ime='George', slika='George', svakih=1500),
+    Igrač(ime='George', slika='George', svakih=400),
     Igrač(ime='Ghostface', slika='Ghostface', svakih=500)
 ]
 
 sat = G.time.Clock()
-statusprav = G.Rect(q * 3, 0, status.get_width(), status.get_height())
+statusprav = G.Rect(q * s, 0, status.get_width(), status.get_height())
 G.font.init()
 font = G.font.Font(None, 50)
 
@@ -107,9 +108,9 @@ class Boja:
 while ...:
     ekran.fill(Boja.bijela)
     i, j = Luka.pos
-    for di in range(3):
-        for dj in range(3):
-            vidi = i + di - 1, j + dj - 1
+    for di in range(s):
+        for dj in range(s):
+            vidi = i + di - s//2, j + dj - s//2
             prav = G.Rect(q * dj, q * di, q, q)
             if vidi in zidovi:
                 ekran.fill(Boja.crna, prav)
