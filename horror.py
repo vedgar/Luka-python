@@ -124,10 +124,12 @@ while ...:
     try:
         moj_događaj = ubrzanje = G.USEREVENT
         splash(poruka)
+        zidovi |= pomični
         Luka = Igrač(ime='Luka')
         scary = [
             Igrač(ime='George', slika='George.png', svakih=400),
-            Igrač(ime='Ghostface', slika='Ghostface.png', svakih=500)
+            Igrač(ime='ghostface', slika='Ghostface.png', svakih=500),
+            Igrač(ime='Ricardo', slika='Ricardo Milos.jpeg', svakih=300),
         ]
         while ...:
             ekran.fill(Boja.bijela)
@@ -151,7 +153,7 @@ while ...:
                                 break
                     if vidi == Luka.pos:
                         ekran.fill(Boja.svijetlosiva, prav)
-                    if sklopka == Luka.pos:
+                    if sklopka == Luka.pos and G.key.get_pressed()[G.K_p]:
                         zidovi ^= pomični
                         poruka = 'Sklopka je prebačena!'
                     if izlaz == Luka.pos:
@@ -162,7 +164,7 @@ while ...:
             status.blit(tekst, (10, 50))
             ekran.blit(status, statusprav)
             G.display.flip()
-            poruka = str({npc.ime: npc.udaljenost() for npc in scary})
+            poruka = str({npc.ime[0]: npc.udaljenost() for npc in scary})
             for događaj in G.event.get():
                 if događaj.type == G.QUIT: kraj()
                 elif događaj.type == G.KEYUP:
