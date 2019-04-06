@@ -6,10 +6,14 @@ header = len(labirint[0]) * '#'
 labirint = [header] + labirint + [header]
 labirint = ['#' + linija + '#' for linija in labirint]
 
-zidovi = set()
+zidovi, pomični = set(), set()
 for i, linija in enumerate(labirint):
     for j, ćelija in enumerate(linija):
         if ćelija == '#': zidovi.add((i, j))
+        elif ćelija == '%': pomični.add((i, j))
+        elif ćelija == '$': sklopka = i, j
+        elif ćelija == 'X': izlaz = i, j
+zidovi |= pomični
 visina, širina = i, j
 q = 50
 s = 5
@@ -34,7 +38,7 @@ class Igrač:
         self.pos = pos
         self.ime = ime
         if slika is not None:
-            slika = G.image.load(slika + '.png')
+            slika = G.image.load(slika)
             slika = G.transform.scale(slika, (q, q))
             self.slika = slika.convert()
 
@@ -86,9 +90,12 @@ font = G.font.Font(None, 50)
 poruka = 'Welcome to the horrible game'
 
 def kraj(npc=None):
-    if npc is None: print('You gave up')
-    else: print("You got F'ed by", npc.ime)
-    raise Opet(npc.ime)
+    if npc is None:
+        print('You gave up')
+        G.quit()
+        raise SystemExit
+    else:
+        raise Opet(npc.ime)
 
 class Boja:
     bijela = G.Color('white')
@@ -96,6 +103,8 @@ class Boja:
     plava = G.Color('blue')
     crvena = G.Color('red')
     svijetlosiva = G.Color('#dddddd')
+    zelena = G.Color('green')
+    svijetloplava = G.Color('lightblue')
 
 def splash(poruka):
     ekran.fill(Boja.crvena)
@@ -107,16 +116,18 @@ def splash(poruka):
     while ...:
         for događaj in G.event.get():
             if događaj.type == G.KEYDOWN and događaj.key == G.K_SPACE: return
+            elif događaj.type == G.KEYDOWN and događaj.key == G.K_ESCAPE: kraj()
+            elif događaj.type == G.QUIT: kraj()
 
 poruka = ''
 while ...:
     try:
         moj_događaj = ubrzanje = G.USEREVENT
         splash(poruka)
-        Luka = Igrač()
+        Luka = Igrač(ime='Luka')
         scary = [
-            Igrač(ime='George', slika='George', svakih=400),
-            Igrač(ime='Ghostface', slika='Ghostface', svakih=500)
+            Igrač(ime='George', slika='George.png', svakih=400),
+            Igrač(ime='Ghostface', slika='Ghostface.png', svakih=500)
         ]
         while ...:
             ekran.fill(Boja.bijela)
@@ -127,6 +138,10 @@ while ...:
                     prav = G.Rect(q * dj, q * di, q, q)
                     if vidi in zidovi:
                         ekran.fill(Boja.crna, prav)
+                    elif vidi == sklopka:
+                        ekran.fill(Boja.zelena, prav)
+                    elif vidi == izlaz:
+                        ekran.fill(Boja.svijetloplava, prav)
                     else:
                         for npc in scary:
                             if vidi == npc.pos:
@@ -136,6 +151,11 @@ while ...:
                                 break
                     if vidi == Luka.pos:
                         ekran.fill(Boja.svijetlosiva, prav)
+                    if sklopka == Luka.pos:
+                        zidovi ^= pomični
+                        poruka = 'Sklopka je prebačena!'
+                    if izlaz == Luka.pos:
+                        kraj(Luka)
                             
             status.fill(Boja.plava)
             tekst = font.render(poruka, True, Boja.crna, Boja.plava)
@@ -155,4 +175,6 @@ while ...:
                     for npc in scary:
                         if događaj.type == npc.događaj: npc.pomakni_pametno()
     except Opet as ex:
-        poruka = "You got F'ed by " + ex.args[0]
+        who = ex.args[0]
+        if who == 'Luka': poruka = 'You won! Have a cookie.'
+        else: poruka = "You got F'ed by " + who
