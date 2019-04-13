@@ -32,12 +32,12 @@ class Igrač:
         self.događaj = moj_događaj
         self.svakih = svakih
         if self.svakih: G.time.set_timer(self.događaj, self.svakih)
+        self.ime = ime
         while ...:
             pos = random.randrange(visina), random.randrange(širina)
             if pos in zidovi: continue
             self.pos = pos
             if ime == 'Luka' or self.udaljenost() >= 6: break
-        self.ime = ime
         if slika is not None:
             slika = G.image.load(slika)
             slika = G.transform.scale(slika, (q, q))
@@ -54,6 +54,7 @@ class Igrač:
         self.pomakni(*random.choice([(-1, 0), (1, 0), (0, -1), (0, 1)]))
 
     def udaljenost(self):
+        if self.ime == 'ključ' and Luka.ključ: return 0
         (i1, j1), (i2, j2) = self.pos, Luka.pos
         return abs(i1 - i2) + abs(j1 - j2)
 
@@ -127,6 +128,7 @@ while ...:
         splash(poruka)
         zidovi |= pomični
         Luka = Igrač(ime='Luka')
+        Luka.ključ = False
         scary = [
             Igrač(ime='Jason', slika='George.png', svakih=400),
             Igrač(ime='ghostface', slika='Ghostface.png', svakih=500),
@@ -134,6 +136,7 @@ while ...:
             Igrač(ime='Lutkica', slika='Doll.png', svakih=350)
         ]
         ključ = Igrač(ime='ključ', slika='Key.png', svakih=0)
+        
         while ...:
             ekran.fill(Boja.bijela)
             i, j = Luka.pos
@@ -154,20 +157,26 @@ while ...:
                                 if vidi == Luka.pos:
                                     kraj(npc)
                                 break
+                        if vidi == ključ.pos and not Luka.ključ:
+                            ekran.blit(ključ.slika, prav)
+                            if vidi == Luka.pos:
+                                Luka.ključ = True
                     if vidi == Luka.pos:
                         ekran.fill(Boja.svijetlosiva, prav)
                     if Luka.pos in sklopke and G.key.get_pressed()[G.K_p]:
                         zidovi -= pomični
                         poruka = 'Sklopka je prebačena!'
                     if izlaz == Luka.pos:
-                        kraj(Luka)
+                        if Luka.ključ: kraj(Luka)
+                        else: poruka = 'You need a key!'
                             
             status.fill(Boja.plava)
             tekst = font.render(poruka, True, Boja.crna, Boja.plava)
             status.blit(tekst, (10, 50))
             ekran.blit(status, statusprav)
             G.display.flip()
-            poruka = str({npc.ime[0]: npc.udaljenost() for npc in scary})
+            poruka = str({npc.ime[0]: npc.udaljenost()
+                          for npc in scary + [ključ]})
             for događaj in G.event.get():
                 if događaj.type == G.QUIT: kraj()
                 elif događaj.type == G.KEYUP:
