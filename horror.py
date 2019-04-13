@@ -157,7 +157,7 @@ while ...:
                     if vidi == Luka.pos:
                         ekran.fill(Boja.svijetlosiva, prav)
                     if sklopka == Luka.pos and G.key.get_pressed()[G.K_p]:
-                        zidovi ^= pomični
+                        zidovi -= pomični
                         poruka = 'Sklopka je prebačena!'
                     if izlaz == Luka.pos:
                         kraj(Luka)
