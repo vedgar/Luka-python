@@ -34,8 +34,9 @@ class Igrač:
         if self.svakih: G.time.set_timer(self.događaj, self.svakih)
         while ...:
             pos = random.randrange(visina), random.randrange(širina)
-            if pos not in zidovi: break
-        self.pos = pos
+            if pos in zidovi: continue
+            self.pos = pos
+            if ime == 'Luka' or self.udaljenost() >= 6: break
         self.ime = ime
         if slika is not None:
             slika = G.image.load(slika)
@@ -127,10 +128,12 @@ while ...:
         zidovi |= pomični
         Luka = Igrač(ime='Luka')
         scary = [
-            Igrač(ime='George', slika='George.png', svakih=400),
+            Igrač(ime='Jason', slika='George.png', svakih=400),
             Igrač(ime='ghostface', slika='Ghostface.png', svakih=500),
-            Igrač(ime='Ricardo', slika='Ricardo Milos.jpeg', svakih=300),
+            # Igrač(ime='Ricardo', slika='Ricardo Milos.jpeg', svakih=300),
+            Igrač(ime='Lutkica', slika='Doll.png', svakih=350)
         ]
+        ključ = Igrač(ime='ključ', slika='Key.png', svakih=0)
         while ...:
             ekran.fill(Boja.bijela)
             i, j = Luka.pos
