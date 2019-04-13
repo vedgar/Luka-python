@@ -6,12 +6,12 @@ header = len(labirint[0]) * '#'
 labirint = [header] + labirint + [header]
 labirint = ['#' + linija + '#' for linija in labirint]
 
-zidovi, pomični = set(), set()
+zidovi, pomični, sklopke = set(), set(), set()
 for i, linija in enumerate(labirint):
     for j, ćelija in enumerate(linija):
         if ćelija == '#': zidovi.add((i, j))
         elif ćelija == '%': pomični.add((i, j))
-        elif ćelija == '$': sklopka = i, j
+        elif ćelija == '$': sklopke.add((i, j))
         elif ćelija == 'X': izlaz = i, j
 zidovi |= pomični
 visina, širina = i, j
@@ -143,7 +143,7 @@ while ...:
                     prav = G.Rect(q * dj, q * di, q, q)
                     if vidi in zidovi:
                         ekran.fill(Boja.crna, prav)
-                    elif vidi == sklopka:
+                    elif vidi in sklopke:
                         ekran.fill(Boja.zelena, prav)
                     elif vidi == izlaz:
                         ekran.fill(Boja.svijetloplava, prav)
@@ -156,8 +156,8 @@ while ...:
                                 break
                     if vidi == Luka.pos:
                         ekran.fill(Boja.svijetlosiva, prav)
-                    if sklopka == Luka.pos and G.key.get_pressed()[G.K_p]:
-                        zidovi ^= pomični
+                    if Luka.pos in sklopke and G.key.get_pressed()[G.K_p]:
+                        zidovi -= pomični
                         poruka = 'Sklopka je prebačena!'
                     if izlaz == Luka.pos:
                         kraj(Luka)
