@@ -7,15 +7,13 @@ ZMIJA, SMJER, HRANA = [(0, 0)], [0], [(0, 0)]
 def ranking():
     ime = None
     pozicija = 0
-    datoteka = open('ranking.txt','r')
-    Lista = datoteka.readlines()
-    ljestvica = ""
+    with open('ranking.txt') as datoteka:
+        Lista = datoteka.readlines()
+        ljestvica = ""
+        for i in range(5): ljestvica += Lista[i]
     for i in range(5):
-        ljestvica = ljestvica + Lista[i]
-    datoteka.close()
-    for i in range(5):
-        pom = Lista[i].split()
-        Lista[i] = [pom[0], int(pom[1])]
+        ime, bodovi = Lista[i].rsplit(maxsplit=1)
+        Lista[i] = ime, int(bodovi)
     for i in range(5):
         if Lista[i][1] <len(ZMIJA):
             ime = textinput("cestitke",ljestvica + "\nTvoj rezultat je :" + str(len(ZMIJA)) + "\nUpisi se na ljestvicu: ")
